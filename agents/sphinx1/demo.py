@@ -48,11 +48,35 @@ class ConsoleSink:
         print(f"{DIM}{text}{RESET}", flush=True)
 
 
+def preflight(cfg: Config, sinks: list) -> bool:
+    """With real models: check Ollama is up and the four models are pulled; say exactly what to fix. Never blocks the demo."""
+    c = cfg.council
+    if c.provider != "ollama":
+        return True
+    from .streaming import missing_models, ollama_models
+    try:
+        installed = ollama_models(c.base_url)
+    except OSError as e:
+        for s in sinks:
+            s.note(f"Ollama is not reachable ({type(e).__name__}). Start it (open the Ollama app), or agents will use scripted fallback lines.")
+        return False
+    wanted = [c.planner_model, c.vision_model, c.navigator_model, c.safety_model]
+    miss = missing_models(wanted, installed)
+    for m in miss:
+        for s in sinks:
+            s.note(f"model not installed: run  ollama pull {m}   (that agent will use a fallback line until then)")
+    if not miss:
+        for s in sinks:
+            s.note("preflight ok: Ollama is up and all four models are installed")
+    return not miss
+
+
 def run_demo(task: str, cfg: Config, sinks: list, seed: int = 1) -> RunResult:
     def emit(name, *a):
         for s in sinks:
             getattr(s, name)(*a)
 
+    preflight(cfg, sinks)
     bus = Bus()
     robot = make_robot(cfg, seed)
     llm = make_llm(cfg.llm)
@@ -114,6 +138,17 @@ def run_demo(task: str, cfg: Config, sinks: list, seed: int = 1) -> RunResult:
     return res
 
 
+def enable_ansi() -> None:
+    """Old Windows consoles print color codes as junk unless virtual-terminal mode is switched on."""
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            k = ctypes.windll.kernel32
+            k.SetConsoleMode(k.GetStdHandle(-11), 7)
+        except Exception:
+            pass
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="sphinx1.demo", description="Live multi-model agent demo.")
     p.add_argument("--task", help='task, e.g. "find the red bottle" (with --web it can be typed in the browser instead)')
@@ -128,6 +163,7 @@ def main(argv=None) -> int:
     p.add_argument("--web", action="store_true", help="serve the live browser view on http://localhost:8765")
     p.add_argument("--port", type=int, default=8765)
     a = p.parse_args(argv)
+    enable_ansi()
     for s in (sys.stdout, sys.stderr):
         try:
             s.reconfigure(encoding="utf-8")
