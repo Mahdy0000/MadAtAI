@@ -73,3 +73,17 @@ def _openai(cfg, system, user, image, max_tokens):
             piece = choices[0].get("delta", {}).get("content") or ""
             if piece:
                 yield piece
+
+
+def ollama_models(base_url: str = "", timeout: float = 5) -> list[str]:
+    """Names of the models Ollama has installed (GET /api/tags). Raises OSError if Ollama is not reachable."""
+    base = (base_url or "http://localhost:11434").rstrip("/")
+    with urllib.request.urlopen(f"{base}/api/tags", timeout=timeout) as resp:
+        return [m.get("name", "") for m in json.loads(resp.read()).get("models", [])]
+
+
+def missing_models(wanted: list[str], installed: list[str]) -> list[str]:
+    """Wanted names with no installed match. 'qwen2.5:3b' matches itself; a bare name matches any tag of it."""
+    have = set(installed)
+    have_bare = {n.split(":")[0] for n in installed}
+    return [w for w in wanted if w not in have and not (":" not in w and w in have_bare)]
