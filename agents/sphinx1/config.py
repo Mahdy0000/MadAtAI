@@ -53,6 +53,25 @@ class RunCfg:
 
 
 @dataclass
+class CouncilCfg:
+    """The four talking agents, each backed by its own model. provider 'mock' = scripted lines, no model needed."""
+    provider: str = "mock"            # "mock", "ollama" or "openai"
+    base_url: str = ""
+    api_key_env: str = "OPENAI_API_KEY"
+    planner_model: str = "qwen2.5:3b"
+    vision_model: str = "qwen2.5vl:3b"
+    navigator_model: str = "llama3.2:3b"
+    safety_model: str = "gemma2:2b"
+    max_words: int = 28               # keep each turn short so the debate stays watchable
+    max_rounds: int = 10              # discussion rounds per run
+    min_gap_steps: int = 12           # minimum robot steps between two rounds
+    every_steps: int = 40             # also talk at least this often
+    timeout_s: float = 90
+    token_delay_s: float = 0.03       # pacing for scripted (offline) lines
+    step_delay_s: float = 0.12        # slow the simulator a little so the audience can follow
+
+
+@dataclass
 class Config:
     robot: RobotCfg = field(default_factory=RobotCfg)
     llm: LLMCfg = field(default_factory=LLMCfg)
@@ -60,6 +79,7 @@ class Config:
     navigator: NavigatorCfg = field(default_factory=NavigatorCfg)
     planner: PlannerCfg = field(default_factory=PlannerCfg)
     run: RunCfg = field(default_factory=RunCfg)
+    council: CouncilCfg = field(default_factory=CouncilCfg)
 
 
 def load_config(path: str | Path | None = None) -> Config:
