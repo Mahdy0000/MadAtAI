@@ -1,0 +1,31 @@
+# Sphinx-1 agents config. Every value here can be overridden on the command line.
+
+[robot]
+kind = "sim"                  # "sim" (no hardware) or "http" (real ESP32-CAM robot)
+url = "http://192.168.4.1"    # robot address, used when kind = "http"
+step_s = 0.25                 # how long each drive command runs (firmware failsafe is 0.6 s)
+
+[llm]
+provider = "mock"             # "mock" (offline, rule-based), "ollama" or "openai"
+model = "qwen2.5vl:7b"        # Ollama: any vision model you have pulled. OpenAI-compatible: its model name
+base_url = ""                 # empty = provider default (Ollama http://localhost:11434, OpenAI https://api.openai.com/v1)
+api_key_env = "OPENAI_API_KEY"  # name of the env var that holds the key (never put the key in this file)
+timeout_s = 60
+
+[vision]
+backend = "sim"               # "sim" (ground truth from the simulator) or "vlm" (asks the LLM about each frame)
+min_confidence = 0.5
+
+[navigator]
+speed = 150                   # 0-255 motor PWM
+turn_speed = 100
+stop_cm = 18                  # obstacle closer than this: back off and turn
+arrive_cm = 22                # target centered and closer than this: arrived
+center_tolerance = 0.4        # |bearing| below this counts as centered (-1 left .. 1 right)
+
+[planner]
+max_search_turns = 12         # spin-in-place proposals before the planner forces exploring forward
+confirm_arrivals = 2          # consecutive arrival proposals needed before the task is done
+
+[run]
+max_steps = 300
