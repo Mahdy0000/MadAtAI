@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sphinx1"
+version = "0.1.0"
+description = "Laptop-side multi-agent brain for the Sphinx-1 robot (MadAtAI)"
+requires-python = ">=3.10"
+dependencies = ["tomli>=2.0; python_version < '3.11'"]
+
+[project.scripts]
+sphinx1 = "sphinx1.__main__:main"
+
+[tool.setuptools]
+packages = ["sphinx1"]
