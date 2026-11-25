@@ -43,6 +43,19 @@ class Bus:
             self._on_message(msg)
         return msg
 
+    def stream(self, sender: str, to: str, kind: str, chunks, on_chunk: Callable[[str], None] | None = None, **data: Any) -> Message:
+        """Send a message whose text arrives piece by piece. on_chunk sees each piece as it is produced;
+        the complete message (data["text"]) is delivered to the recipients once the stream ends."""
+        parts: list[str] = []
+        try:
+            for c in chunks:
+                parts.append(c)
+                if on_chunk:
+                    on_chunk(c)
+        finally:
+            msg = self.send(sender, to, kind, text="".join(parts), **data)
+        return msg
+
     def receive(self, name: str, kind: str | None = None) -> list[Message]:
         """Drain and return the agent's inbox (optionally only one kind; others stay queued)."""
         box = self._inbox[name]
