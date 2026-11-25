@@ -11,6 +11,7 @@ dependencies = ["tomli>=2.0; python_version < '3.11'"]
 
 [project.scripts]
 sphinx1 = "sphinx1.__main__:main"
+sphinx1-demo = "sphinx1.demo:main"
 
 [tool.setuptools]
 packages = ["sphinx1"]
