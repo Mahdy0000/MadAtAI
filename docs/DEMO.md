@@ -49,10 +49,11 @@ The Vision agent then also looks at the actual camera frame. Do the wheels-up sa
 ## Dry run checklist (before the judges)
 
 1. Run the browser view, task `find the red bottle`. Expect four columns filling with live text and the run ending `SUCCESS`.
-2. If a line shows "fallback line (model unavailable)": that model name is not pulled or Ollama is not running. `ollama list` shows what you have.
-3. If turns are slow (more than about 5 s per line): the models are swapping. Check step 3 above, or use smaller ones (`qwen2.5:1.5b`).
-4. Try an Arabic task: `هات لي الزجاجة الحمرا`.
-5. Unplug the network cable / Wi-Fi from Ollama's side (stop Ollama) and confirm the demo still finishes with fallback lines.
+2. At the start the demo checks Ollama and prints `ollama pull <model>` for any model you are missing. Run those, then run the demo again.
+3. If a line shows "fallback line (model unavailable)": that model name is not pulled or Ollama is not running. `ollama list` shows what you have.
+4. If turns are slow (more than about 5 s per line): the models are swapping. Check the OLLAMA_MAX_LOADED_MODELS setup step, or use smaller ones (`qwen2.5:1.5b`).
+5. Try an Arabic task: `هات لي الزجاجة الحمرا`.
+6. Unplug the network cable / Wi-Fi from Ollama's side (stop Ollama) and confirm the demo still finishes with fallback lines.
 
 ## Script for the judges (about 3 minutes)
 
