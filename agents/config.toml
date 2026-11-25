@@ -29,3 +29,19 @@ confirm_arrivals = 2          # consecutive arrival proposals needed before the 
 
 [run]
 max_steps = 300
+
+[council]
+# The four agents that talk in the live demo (python -m sphinx1.demo). Each uses its own model.
+provider = "mock"              # "mock" = scripted lines (offline) | "ollama" | "openai"
+base_url = ""                  # empty = Ollama on http://localhost:11434
+planner_model = "qwen2.5:3b"
+vision_model = "qwen2.5vl:3b"
+navigator_model = "llama3.2:3b"
+safety_model = "gemma2:2b"
+max_words = 28
+max_rounds = 10
+min_gap_steps = 12
+every_steps = 40
+timeout_s = 90
+token_delay_s = 0.03
+step_delay_s = 0.12
