@@ -49,6 +49,10 @@ You will see the three agents exchange messages and the run end with `SUCCESS: t
 
 Simulator only, measured with `--seed 1..40` and the default config: 35 of 40 layouts reached the target within 300 steps, 5 timed out. This says nothing about the real robot.
 
+## Live demo: four models talking, streamed
+
+`python -m sphinx1.demo --council ollama --web` opens a browser view where Planner, Vision, Navigator and Safety (each on its own Ollama model) discuss every decision live, token by token. Setup, dry-run checklist and the judges' script: [docs/DEMO.md](docs/DEMO.md). Works without any model too (scripted voices).
+
 ## Run it on the real robot
 
 1. Build the robot: [docs/BOM.md](docs/BOM.md) and [docs/WIRING.md](docs/WIRING.md).
@@ -108,6 +112,7 @@ Swappable parts (all chosen in `agents/config.toml` or on the command line):
 | `agents/config.toml` | all settings, documented inline |
 | `firmware/sphinx1_cam/` | ESP32-CAM Arduino sketch and `config.h` (Wi-Fi, pins) |
 | `firmware/README.md` | exact flashing steps and hardware bring-up checklist |
+| `docs/DEMO.md` | live streaming demo: setup, dry run, judges' script |
 | `docs/BOM.md`, `docs/WIRING.md` | parts list, wiring diagram, pin map |
 
 ## Roadmap
