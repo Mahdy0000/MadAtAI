@@ -21,6 +21,10 @@ class Rec:
 
 
 class FakeOllama(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200); self.end_headers()
+        self.wfile.write(json.dumps({"models": [{"name": "qwen2.5:3b"}, {"name": "gemma2:2b"}]}).encode())
+
     """Streams the model name back token by token, like Ollama's /api/chat."""
     def log_message(self, *a): pass
     def do_POST(self):
@@ -55,6 +59,19 @@ class CouncilTests(unittest.TestCase):
         self.assertEqual(len({t.model for t in turns}), 4)
         self.assertTrue(all(not t.fallback and t.text == f"I am {t.model} speaking live." for t in turns))
         self.assertGreaterEqual(len([e for e in rec.ev if e[0] == "token"]), 12)   # arrived in pieces
+
+    def test_preflight_names_missing_models(self):
+        from sphinx1.demo import preflight
+        srv = HTTPServer(("127.0.0.1", 0), FakeOllama)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        cfg = Config(); cfg.council.provider = "ollama"; cfg.council.base_url = f"http://127.0.0.1:{srv.server_port}"
+        rec = Rec()
+        ok = preflight(cfg, [rec])
+        srv.shutdown()
+        notes = [e[1] for e in rec.ev if e[0] == "note"]
+        self.assertFalse(ok)
+        self.assertEqual(len(notes), 2)
+        self.assertTrue(any("ollama pull qwen2.5vl:3b" in n for n in notes))
 
     def test_unreachable_model_falls_back(self):
         rec = Rec()
